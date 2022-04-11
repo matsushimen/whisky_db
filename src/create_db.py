@@ -13,15 +13,14 @@ class WhiskyDb:
     
     def __init__(self):
         self.db_name = "whisky_db"
-        self.meta_whisky_path = ""
-        self.meta_distillary_path = ""
-        self.meta_owner_path = ""
+        self.meta_data_path = ""
         self._connection = self._init_db()
         self._cursor = self._connection.cursor()
 
     def _create_schema_from_metadata(self, metadata_path: str):
-        metadata_raw = json.load(metadata_path)
-        metadata = Metadata(metadata_raw["table_name"], metadata_raw["schema"])
+        with open(metadata_path) as f:
+            metadata_raw = json.load(f)
+            metadata = Metadata(metadata_raw["table_name"], metadata_raw["schema"])
 
         return metadata
 

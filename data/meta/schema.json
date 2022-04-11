@@ -1,0 +1,26 @@
+[{"whisky":
+  {
+    "name": "string",
+    "age": "integer",
+    "distillary": "string",
+    "owner": "string",
+    "per_vol": "float",
+    "type": "string",
+    "tasting_note": "string"
+  }
+},
+{"distillary":
+  {
+    "name": "string",
+    "since": "string",
+    "owner": "string",
+    "country": "string",
+    "area": "string"
+  }
+},
+{"owner":
+  {
+    "name": "string",
+    "country": "string"
+  }
+}]
