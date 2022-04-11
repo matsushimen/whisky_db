@@ -1,4 +1,4 @@
-[{"whisky":
+{"whisky":
   {
     "name": "string",
     "age": "integer",
@@ -8,8 +8,8 @@
     "type": "string",
     "tasting_note": "string"
   }
-},
-{"distillary":
+,
+"distillary":
   {
     "name": "string",
     "since": "string",
@@ -17,10 +17,10 @@
     "country": "string",
     "area": "string"
   }
-},
-{"owner":
+,
+"owner":
   {
     "name": "string",
     "country": "string"
   }
-}]
+}
