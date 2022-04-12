@@ -31,7 +31,7 @@ class WhiskyDb:
         for metadata in metas:
             cursor.execute("CREATE TABLE IF NOT EXISTS {} ({})".format(metadata.table_name, initial_db))
             for k, v in metadata.schema.items():
-                cursor.sql("ALTER TABLE {} ADD {} {}".format(metadata.table_name, k, v))
+                cursor.execute("ALTER TABLE {} ADD {} {}".format(metadata.table_name, k, v))
 
     def _init_db(self):
         return sqlite3.connect(self.db_name, isolation_level=None)
@@ -46,7 +46,6 @@ class WhiskyDb:
 
     def close(self):
         self._connection.close()
-        self._cursor.close()
 
 if __name__ == '__main__':
     db = WhiskyDb()
