@@ -12,7 +12,7 @@ class Metadata:
 class WhiskyDb:
     
     def __init__(self):
-        self.db_name = "whisky_db"
+        self.db_name = "whisky.db"
         self.metadata_path = "data/meta/schema.json"
         self._connection = self._init_db()
         self._cursor = self._connection.cursor()
@@ -30,7 +30,9 @@ class WhiskyDb:
         initial_db = 'id INTEGER PRIMARY KEY'
         for metadata in metas:
             cursor.execute("CREATE TABLE IF NOT EXISTS {} ({})".format(metadata.table_name, initial_db))
+            print(metadata.table_name)
             for k, v in metadata.schema.items():
+                print(k, v)
                 cursor.execute("ALTER TABLE {} ADD {} {}".format(metadata.table_name, k, v))
 
     def _init_db(self):

@@ -3,6 +3,7 @@ import pandas
 from bs4 import BeautifulSoup
 from urllib import request 
 import re 
+import sys
 
 base_url = "https://www.whisky.com"
 def scrape_by_initial(initial: str)->list:
@@ -113,8 +114,8 @@ def scrape_by_distillary(url: str)-> dict:
 
 
 if __name__ == "__main__":
+    args = sys.argv
+    initial = args[1]
     whiskies = []
-    for ascii_code in range(65, 91):
-        initial = chr(ascii_code)
-        whiskies.extend(scrape_by_initial(initial))
-    pandas.DataFrame(whiskies).to_csv("whiskies.csv", index=None)
+    whiskies.extend(scrape_by_initial(initial))
+    pandas.DataFrame(whiskies).to_csv("whiskies.csv", index=None, mode='a')
