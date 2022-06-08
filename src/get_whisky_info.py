@@ -6,7 +6,7 @@ import re
 import sys
 
 base_url = "https://www.whisky.com"
-def scrape_by_initial(initial: str)->list:
+def scrape_by_initial(initial: str, csv_file_path: str):
     print(initial)
     url = "https://www.whisky.com/whisky-database/bottle-search/whisky/fdb/Bottles/List.html?tx_datamintsflaschendb_pi4[searchCriteria][titleStartsWith]=" + initial
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
@@ -25,7 +25,8 @@ def scrape_by_initial(initial: str)->list:
     except TypeError:
         child_page_url = url
         whiskies.extend(scrape_by_page_num(child_page_url))
-    return whiskies
+    
+    pandas.DataFrame(whiskies).to_csv(csv_file_path, index=None, mode='a')
         
 
 def scrape_by_page_num(url: str)-> list:
@@ -116,6 +117,6 @@ def scrape_by_distillary(url: str)-> dict:
 if __name__ == "__main__":
     args = sys.argv
     initial = args[1]
-    whiskies = []
-    whiskies.extend(scrape_by_initial(initial))
-    pandas.DataFrame(whiskies).to_csv("whiskies.csv", index=None, mode='a')
+    csv_file_path = args[2]
+    scrape_by_initial(initial, csv_file_path)
+    
