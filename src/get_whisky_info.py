@@ -13,7 +13,6 @@ def scrape_by_initial(initial: str, csv_file_path: str):
     req = request.Request(url=url, headers=headers)
     response = request.urlopen(req)
     soup = BeautifulSoup(response,features="html.parser")
-    whiskies = []
     try:
         last_url = soup.select_one('div.pagination:nth-child(6) > ul:nth-child(1) > li:nth-child(3) > ul:nth-child(1) > li:nth-child(2) > a:nth-child(1)')['href']
         print(last_url)
@@ -21,15 +20,15 @@ def scrape_by_initial(initial: str, csv_file_path: str):
         child_page_url_base = url + '&tx_datamintsflaschendb_pi4%5BcurPage%5D='
         for num in range(1, last_page_num+1):
             child_page_url = child_page_url_base + str(num)
-            whiskies.extend(scrape_by_page_num(child_page_url))
+            scrape_by_page_num(child_page_url, csv_file_path)
     except TypeError:
         child_page_url = url
-        whiskies.extend(scrape_by_page_num(child_page_url))
+        scrape_by_page_num(child_page_url, csv_file_path)
     
-    pandas.DataFrame(whiskies).to_csv(csv_file_path, index=None, mode='a')
+    
         
 
-def scrape_by_page_num(url: str)-> list:
+def scrape_by_page_num(url: str, csv_file_path: str):
     print("scrape by page num")
     print(url)
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
@@ -47,7 +46,7 @@ def scrape_by_page_num(url: str)-> list:
 
         whiskies.append(scrape_by_whisky(whisky_url))
 
-    return whiskies
+    pandas.DataFrame(whiskies).to_csv(csv_file_path, index=None, mode='a')
 
 def scrape_by_whisky(url:str)->dict:
 
