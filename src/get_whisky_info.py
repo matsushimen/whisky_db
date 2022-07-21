@@ -6,7 +6,7 @@ import re
 import sys
 
 base_url = "https://www.whisky.com"
-def scrape_by_initial(initial: str, csv_file_path: str):
+def scrape_by_initial(initial: str, csv_file_path: str, page_num: int):
     print(initial)
     url = "https://www.whisky.com/whisky-database/bottle-search/whisky/fdb/Bottles/List.html?tx_datamintsflaschendb_pi4[searchCriteria][titleStartsWith]=" + initial
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
@@ -19,16 +19,19 @@ def scrape_by_initial(initial: str, csv_file_path: str):
         last_page_num = int(last_url.rsplit('=')[-1])
         child_page_url_base = url + '&tx_datamintsflaschendb_pi4%5BcurPage%5D='
         for num in range(1, last_page_num+1):
-            child_page_url = child_page_url_base + str(num)
-            scrape_by_page_num(child_page_url, csv_file_path)
+            if (page_num == -1) | (page_num <= num):
+                print(num)
+                child_page_url = child_page_url_base + str(num)
+                scrape_by_page_num(child_page_url, csv_file_path, initial)
+
     except TypeError:
         child_page_url = url
-        scrape_by_page_num(child_page_url, csv_file_path)
+        scrape_by_page_num(child_page_url, csv_file_path, initial)
     
     
         
 
-def scrape_by_page_num(url: str, csv_file_path: str):
+def scrape_by_page_num(url: str, csv_file_path: str, initial: str):
     print("scrape by page num")
     print(url)
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36'}
@@ -46,7 +49,10 @@ def scrape_by_page_num(url: str, csv_file_path: str):
 
         whiskies.append(scrape_by_whisky(whisky_url))
 
-    pandas.DataFrame(whiskies).to_csv(csv_file_path, index=None, mode='a')
+    if initial == 'A':
+        pandas.DataFrame(whiskies).to_csv(csv_file_path, index=None, mode='a',header=True)
+    else:
+        pandas.DataFrame(whiskies).to_csv(csv_file_path, index=None, mode='a',header=None)
 
 def scrape_by_whisky(url:str)->dict:
 
@@ -96,19 +102,21 @@ def scrape_by_distillary(url: str)-> dict:
     name = " ".join(filter(lambda y: y!="", [x.strip() for x in soup.select_one('.brennereien-detail > div:nth-child(1) > div:nth-child(1) > h1:nth-child(1)').strings])).strip()
     geo = ""
     try:
-        geo = "".join(filter(lambda x: re.match(r"/whisky-database/distilleries.html", x.get('href')), soup.select('#attributes > tr > td > span > a')))
+        for x in soup.select('#attributes > tr > td > span > a'):
+            if re.match(r".*/whisky-database/distilleries.html.*", x.get('href')):
+                geo = x.text.strip()
     except:
         geo = ""
     land = ''
     region = ''
     company = ''
     for span in soup.select('#attributes > tr > td > span > span'):
-        if span.get('class') == 'land':
+        if span.get('class') == ['land']:
             land = span.text.strip().replace(',', '')
-        elif span.get('class') == 'region':
+        elif span.get('class') == ['region']:
             region = span.text.strip().replace(',', '')
     for a in soup.select('#attributes > tr > td > span > a') :
-        if re.match('Company', a.get('href')):
+        if re.match('.*Company.*', a.get('href')):
             company = a.text.strip()
     return {"dist_name": name, "geo": geo, "land": land, "region": region, "company": company}
 
@@ -117,5 +125,7 @@ if __name__ == "__main__":
     args = sys.argv
     initial = args[1]
     csv_file_path = args[2]
-    scrape_by_initial(initial, csv_file_path)
+    page_num = int(args[3])
+    
+    scrape_by_initial(initial, csv_file_path, page_num)
     

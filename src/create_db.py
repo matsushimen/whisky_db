@@ -1,6 +1,8 @@
+from multiprocessing import connection
 import sqlite3 
 import json
 import pandas
+import sys
 
 class Metadata:
 
@@ -33,25 +35,33 @@ class WhiskyDb:
             print(metadata.table_name)
             for k, v in metadata.schema.items():
                 print(k, v)
-                cursor.execute("ALTER TABLE {} ADD {} {}".format(metadata.table_name, k, v))
+                try:
+                    cursor.execute("ALTER TABLE {} ADD {} {}".format(metadata.table_name, k, v))
+                except:
+                    print("{} already has column named as {} type of {}".format(metadata.table_name, k, v))
 
     def _init_db(self):
         return sqlite3.connect(self.db_name, isolation_level=None)
 
-    def _insert_from_csv(self, table_name, filepath, connection):
-        df = pandas.read_csv(filepath)
-        df.to_sql(table_name, connection, if_exists='append', index=None)
+    def _insert_from_csv(self, table_name, filepath):
+        connection = self._connection
+        df = pandas.read_csv(filepath, header=0)
+        df.to_sql(table_name, connection, if_exists='replace', index=None)
 
-    def create_db(self):
+    def create_db(self, raw_data):
         metas = self._create_metadata_from_json(self.metadata_path)
         self._create_table_from_metadata(metas, self._cursor)
+        if raw_data is not None:
+            self._insert_from_csv('whisky_raw', raw_data)
+        
 
     def close(self):
         self._connection.close()
 
 if __name__ == '__main__':
+    whiskies = sys.argv[1]
     db = WhiskyDb()
-    db.create_db()
+    db.create_db(whiskies)
     db.close()
 
 

@@ -1,4 +1,16 @@
-{"whisky":
+{"whisky_raw":
+  {
+    "name": "string",
+    "age": "integer",
+    "type": "string",
+    "per_vol": "sting",
+    "distillary": "string",
+    "geo": "string",
+    "land": "string",
+    "region": "string",
+    "company": "string"
+  },
+"whisky":
   {
     "name": "string",
     "age": "integer",
